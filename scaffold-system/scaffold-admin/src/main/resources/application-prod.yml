@@ -1,0 +1,25 @@
+# 生产环境只通过环境变量提供连接信息，避免将服务器账号、密码写入代码仓库。
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+scaffold:
+  jwt:
+    secret: ${JWT_SECRET}
+  selection:
+    storage-path: ${SELECTION_STORAGE_PATH:/home/glory/gems-platform/data/selection}
+    bootstrap-template-path: ${SELECTION_BOOTSTRAP_TEMPLATE_PATH:/home/glory/gems-platform/data/selection/templates/standard.pptx}
+  initiation:
+    storage-path: ${INITIATION_STORAGE_PATH:/home/glory/gems-platform/data/initiation}
+    bootstrap-template-path: ${INITIATION_BOOTSTRAP_TEMPLATE_PATH:/home/glory/gems-platform/data/initiation/templates/standard.pptx}

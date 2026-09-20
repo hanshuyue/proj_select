@@ -1,0 +1,4 @@
+interface:
+  display_name: "DICT PPT 模板生成"
+  short_description: "维护表单到 PowerPoint 的生成、排版规则及模板迁移"
+  default_prompt: "Use $dict-ppt-template to update or migrate this DICT PPT generation template."

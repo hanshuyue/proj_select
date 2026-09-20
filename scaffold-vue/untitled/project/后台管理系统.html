@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>云原中台 · 后台管理系统</title>
+
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/login.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/manage.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- 将常用 React hooks 暴露为全局，供各 Babel 分片使用 -->
+  <script>
+    (function () {
+      var R = window.React;
+      ['useState','useEffect','useRef','useMemo','useCallback','createContext','useContext','useLayoutEffect'].forEach(function (k) {
+        window[k] = R[k];
+      });
+    })();
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <template id="__bundler_thumbnail" data-bg-color="#1d1d1f">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1200" height="800" fill="#1d1d1f"/>
+      <rect x="380" y="250" width="440" height="300" rx="36" fill="#0066cc"/>
+      <g fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M560 360a30 30 0 1 0-30 30h140a30 30 0 1 0-30-30v80a30 30 0 1 0 30-30h-140a30 30 0 1 0 30 30z"/>
+      </g>
+    </svg>
+  </template>
+
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="js/icons.jsx"></script>
+  <script type="text/babel" src="js/data.jsx"></script>
+  <script type="text/babel" src="js/ui.jsx"></script>
+  <script type="text/babel" src="js/layout.jsx"></script>
+  <script type="text/babel" src="js/login.jsx"></script>
+  <script type="text/babel" src="js/dashboard.jsx"></script>
+  <script type="text/babel" src="js/users.jsx"></script>
+  <script type="text/babel" src="js/depts.jsx"></script>
+  <script type="text/babel" src="js/roles.jsx"></script>
+  <script type="text/babel" src="js/menus.jsx"></script>
+  <script type="text/babel" src="js/post.jsx"></script>
+  <script type="text/babel" src="js/dict.jsx"></script>
+  <script type="text/babel" src="js/config.jsx"></script>
+  <script type="text/babel" src="js/logs.jsx"></script>
+  <script type="text/babel" src="js/workflow.jsx"></script>
+  <script type="text/babel" src="js/generator.jsx"></script>
+  <script type="text/babel" src="js/app.jsx"></script>
+</body>
+</html>

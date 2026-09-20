@@ -1,0 +1,14 @@
+graph LR
+    A["浏览器"] -->|"POST /api/auth/login"| B["JwtFilter (放行)"]
+    B --> C["AuthController"]
+    C --> D["AuthService"]
+    D -->|验证密码| E["MySQL"]
+    D -->|存储Token| F["Redis"]
+    D -->|返回JWT| A
+
+    A -->|"GET /api/system/users"| G["JwtFilter (验证Token)"]
+    G -->|认证通过| H["PermissionAspect"]
+    H -->|检查权限| I["SystemManagementController"]
+    I --> J["DataScopeAspect"]
+    J -->|拼接数据范围| K["MySQL 查询"]
+    K -->|返回数据| A

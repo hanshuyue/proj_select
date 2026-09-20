@@ -1,0 +1,28 @@
+{
+  "name": "gems-platform-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "政企项目材料标准化与智能生成平台前端（Vue 3 + Vite + TypeScript）",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "test:api": "node --test --experimental-strip-types src/api/__tests__/*.test.ts",
+    "test:unit": "node --test --experimental-strip-types src/api/__tests__/*.test.ts src/utils/__tests__/*.test.ts",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "@types/three": "^0.184.1",
+    "element-plus": "^2.14.1",
+    "three": "^0.184.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.7",
+    "vue-tsc": "^2.2.0"
+  }
+}

@@ -1,0 +1,107 @@
+/* ============================================================
+   设计 Token —— 基于 Apple 设计语言分析适配后台管理场景
+   单一强调色 Action Blue，发丝分隔线，克制阴影，大留白
+   ============================================================ */
+:root {
+  /* —— 强调色（唯一交互色）—— */
+  --primary: #0066cc;
+  --primary-focus: #0071e3;
+  --primary-soft: #e8f1fb;        /* 蓝色淡底（选中行/标签） */
+  --primary-on-dark: #2997ff;
+
+  /* —— 文本墨色 —— */
+  --ink: #1d1d1f;                 /* 标题 / 正文 */
+  --ink-72: #4a4a4d;              /* 次要正文 */
+  --ink-muted-80: #333333;
+  --ink-muted-48: #7a7a7a;        /* 占位 / 禁用 / 辅助 */
+  --ink-muted-30: #aeaeb2;
+
+  /* —— 表面 —— */
+  --canvas: #ffffff;              /* 卡片 / 表格底 */
+  --parchment: #f5f5f7;           /* 页面底色（羊皮纸灰） */
+  --pearl: #fafafc;               /* 次级按钮 / 表头底 */
+  --surface-hover: #f5f5f7;       /* 行 hover */
+
+  /* —— 侧边栏（近黑）—— */
+  --side-bg: #1d1d1f;
+  --side-bg-2: #161617;           /* 侧栏 logo / footer 微差 */
+  --side-ink: #f5f5f7;
+  --side-ink-muted: #b0b0b6;      /* 未选中菜单文字 */
+  --side-hover: rgba(255,255,255,0.06);
+  --side-active: rgba(255,255,255,0.10);
+  --side-hairline: rgba(255,255,255,0.08);
+
+  /* —— 发丝线 / 边框 —— */
+  --hairline: #e5e5e7;            /* 主分隔线 */
+  --hairline-soft: #f0f0f0;       /* 更弱分隔 */
+  --border-input: #d2d2d7;        /* 输入框边框 */
+
+  /* —— 语义状态色（与强调色同明度域，克制使用）—— */
+  --ok: #1f8a4c;       --ok-soft: #e7f4ec;
+  --warn: #b06d00;     --warn-soft: #fbf0dd;
+  --danger: #c4321f;   --danger-soft: #fae9e7;
+  --info: var(--primary); --info-soft: var(--primary-soft);
+
+  /* —— 圆角 —— */
+  --r-xs: 5px;
+  --r-sm: 8px;
+  --r-md: 11px;
+  --r-lg: 16px;
+  --r-pill: 9999px;
+
+  /* —— 间距 —— */
+  --s-xxs: 4px; --s-xs: 8px; --s-sm: 12px; --s-md: 16px;
+  --s-lg: 24px; --s-xl: 32px; --s-2xl: 48px;
+
+  /* —— 阴影（克制：仅浮层使用）—— */
+  --shadow-pop: 0 1px 2px rgba(0,0,0,0.04), 0 8px 28px rgba(0,0,0,0.10);
+  --shadow-modal: 0 12px 48px rgba(0,0,0,0.18);
+
+  /* —— 字体栈：优先解析为真实 SF Pro / 苹方 —— */
+  --font: -apple-system, "SF Pro Text", "SF Pro Display", system-ui,
+          BlinkMacSystemFont, "PingFang SC", "Helvetica Neue",
+          "Microsoft YaHei", sans-serif;
+  --font-num: "SF Pro Display", -apple-system, system-ui, sans-serif;
+
+  /* —— 布局尺寸 —— */
+  --side-w: 248px;
+  --side-w-collapsed: 76px;
+  --topbar-h: 60px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--parchment);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.01em;
+}
+#root { height: 100vh; }
+
+/* 数字等宽对齐（表格、统计） */
+.tnum { font-variant-numeric: tabular-nums; font-family: var(--font-num); }
+
+/* 滚动条：极细、克制 */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.16); border-radius: 999px;
+  border: 3px solid transparent; background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.28); background-clip: padding-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* 焦点环 */
+:focus-visible { outline: 2px solid var(--primary-focus); outline-offset: 2px; }
+
+button { font-family: inherit; letter-spacing: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; letter-spacing: inherit; }
+
+::selection { background: rgba(0,102,204,0.16); }
+
+/* 通用动效缓动 */
+@keyframes om-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes om-pop-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes om-slide-right { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }

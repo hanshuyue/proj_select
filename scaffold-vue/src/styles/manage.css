@@ -1,0 +1,60 @@
+/* ============================================================
+   管理页样式 —— 用户卡片 / 部门树 / 角色 / 菜单
+   ============================================================ */
+.grow { flex: 1; }
+
+/* —— 用户卡片排布 —— */
+.ucard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; padding: 20px 22px; }
+.ucard {
+  border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 18px; background: var(--canvas);
+  transition: border-color .16s, box-shadow .16s; display: flex; flex-direction: column; gap: 14px;
+}
+.ucard:hover { border-color: var(--ink-muted-30); box-shadow: 0 4px 18px rgba(0,0,0,0.05); }
+.ucard-top { display: flex; align-items: center; gap: 12px; }
+.ucard-name { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.ucard-user { font-size: 12.5px; color: var(--ink-muted-48); margin-top: 2px; }
+.ucard-rows { display: flex; flex-direction: column; gap: 9px; }
+.ucard-row { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ink-72); }
+.ucard-row svg { color: var(--ink-muted-30); flex-shrink: 0; }
+.ucard-row span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ucard-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 13px; border-top: 1px solid var(--hairline-soft); }
+
+/* —— 部门树页 —— */
+.dept-tree-card { padding: 14px; }
+.tree-toolbar { display: flex; align-items: center; gap: 8px; padding: 4px 6px 12px; }
+.dept-detail-empty { padding: 80px 20px; text-align: center; color: var(--ink-muted-48); }
+.dept-detail-empty .em-ico { width: 64px; height: 64px; border-radius: 18px; background: var(--parchment); display: inline-flex; align-items: center; justify-content: center; color: var(--ink-muted-30); margin-bottom: 16px; }
+
+.kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hairline-soft); border: 1px solid var(--hairline-soft); border-radius: var(--r-md); overflow: hidden; }
+.kv-cell { background: var(--canvas); padding: 16px 18px; }
+.kv-cell.full { grid-column: span 2; }
+.kv-label { font-size: 12px; color: var(--ink-muted-48); margin-bottom: 6px; }
+.kv-value { font-size: 14.5px; color: var(--ink); font-weight: 500; }
+
+/* —— 角色页 —— */
+.perm-tree { border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 10px; max-height: 420px; overflow: auto; }
+.perm-node { user-select: none; }
+.perm-row { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: var(--r-sm); }
+.perm-row:hover { background: var(--surface-hover); }
+.perm-btns { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0 6px 56px; }
+.perm-btn-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border: 1px solid var(--hairline); border-radius: var(--r-pill); font-size: 12.5px; cursor: pointer; transition: all .14s; color: var(--ink-72); }
+.perm-btn-chip:hover { border-color: var(--primary); }
+.perm-btn-chip.on { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+
+.scope-list { display: flex; flex-direction: column; gap: 10px; }
+.scope-opt { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1px solid var(--hairline); border-radius: var(--r-md); cursor: pointer; transition: all .15s; }
+.scope-opt:hover { border-color: var(--ink-muted-30); }
+.scope-opt.on { border-color: var(--primary); background: var(--primary-soft); }
+.scope-radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border-input); flex-shrink: 0; margin-top: 1px; display: inline-flex; align-items: center; justify-content: center; transition: all .15s; }
+.scope-opt.on .scope-radio { border-color: var(--primary); }
+.scope-opt.on .scope-radio::after { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--primary); }
+.scope-name { font-size: 14px; font-weight: 600; }
+.scope-desc { font-size: 12.5px; color: var(--ink-muted-48); margin-top: 3px; line-height: 1.45; }
+
+/* —— 菜单树形表格 —— */
+.menu-name-cell { display: flex; align-items: center; gap: 9px; }
+.menu-ico-box { width: 28px; height: 28px; border-radius: 7px; background: var(--parchment); display: inline-flex; align-items: center; justify-content: center; color: var(--ink-72); flex-shrink: 0; }
+.tree-toggle { width: 18px; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-muted-30); cursor: pointer; border-radius: 4px; transition: transform .16s; flex-shrink: 0; }
+.tree-toggle.open { transform: rotate(90deg); }
+.tree-toggle.leaf { visibility: hidden; }
+.tree-indent { display: inline-block; flex-shrink: 0; }

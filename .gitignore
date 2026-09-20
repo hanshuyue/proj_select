@@ -1,0 +1,26 @@
+# Codex and generated working files
+.codex-tmp/
+outputs/
+ppt_build_*/
+
+# Java / Maven build output
+.m2-repository/
+**/target/
+**/runtime-classpath.txt
+**/startup*.log
+
+# Frontend dependencies and build output
+**/node_modules/
+**/dist/
+
+# Android build artifacts
+**/.gradle/
+**/build/
+*.apk
+*.aab
+*.dex
+
+# Runtime logs and temporary files
+*.log
+*.tmp
+*.temp
