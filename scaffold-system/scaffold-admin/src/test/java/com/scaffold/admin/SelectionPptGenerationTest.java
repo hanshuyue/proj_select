@@ -31,7 +31,7 @@ class SelectionPptGenerationTest {
     @Test
     void generatesFromProvidedFixedTemplate() throws Exception {
         SelectionMapper mapper = mock(SelectionMapper.class);
-        Path template = Path.of("D:/workmobile/研发文件/甄选结果模板20260213.pptx");
+        Path template = Path.of(System.getProperty("selection.template.path", "../../deploy/templates/selection/standard.pptx"));
         when(mapper.selectProject(1L)).thenReturn(Map.ofEntries(
                 Map.entry("id", 1L), Map.entry("projectName", "智慧园区"),
                 Map.entry("opportunityNo", "SJ-2026-001"), Map.entry("departmentName", "政企客户部"),

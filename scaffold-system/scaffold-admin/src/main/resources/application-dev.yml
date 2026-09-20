@@ -5,7 +5,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/scaffold_system?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: 123456
+    password: ${DEV_DB_PASSWORD:}
   data:
     redis:
       host: localhost
@@ -27,10 +27,12 @@ flowable:
   rest-api-enabled: false
 
 scaffold:
+  jwt:
+    secret: ${DEV_JWT_SECRET:development-only-jwt-key-not-for-production-2026}
   initiation:
     storage-path: ./data/initiation
     # The standard deck (including its embedded financial workbook) ships with the application.
     # Fillers never need to upload the PPTX or the yield-calculation Excel separately.
-    bootstrap-template-path: "./data/initiation/templates/1785133430747-aa2d3ffdb9cd.pptx"
+    bootstrap-template-path: ${INITIATION_BOOTSTRAP_TEMPLATE_PATH:../../deploy/templates/initiation/standard.pptx}
   selection:
-    bootstrap-template-path: "D:/workmobile/研发文件/甄选结果模板20260213.pptx"
+    bootstrap-template-path: ${SELECTION_BOOTSTRAP_TEMPLATE_PATH:../../deploy/templates/selection/standard.pptx}

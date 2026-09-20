@@ -7,6 +7,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -18,6 +19,7 @@ import java.util.Map;
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@ConditionalOnProperty(name = "scaffold.migrations.enabled", havingValue = "true", matchIfMissing = true)
 public class SelectionSchemaMigration implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(SelectionSchemaMigration.class);
     private final JdbcTemplate jdbc;

@@ -1,0 +1,26 @@
+# Managed by selectproject
+[Unit]
+Description=SelectProject backend
+After=network.target
+
+[Service]
+Type=simple
+User=glory
+Group=glory
+WorkingDirectory=/home/glory/workmobile/selectproject/app
+EnvironmentFile=/etc/selectproject/selectproject.env
+Environment=SPRING_PROFILES_ACTIVE=prod
+Environment=SERVER_ADDRESS=127.0.0.1
+Environment=SERVER_PORT=18082
+ExecStart=@JAVA@ -jar /home/glory/workmobile/selectproject/app/gems-platform-server.jar --spring.profiles.active=prod --server.address=127.0.0.1 --server.port=18082 --scaffold.migrations.enabled=false
+Restart=on-failure
+RestartSec=5
+SuccessExitStatus=143
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

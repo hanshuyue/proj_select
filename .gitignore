@@ -24,3 +24,21 @@ ppt_build_*/
 *.log
 *.tmp
 *.temp
+
+# Credentials and persistent business data; approved templates live in deploy/templates
+.env
+.env.*
+!.env.example
+!.env.development
+!.env.production
+*.env
+!*.env.example
+application-local.yml
+**/data/
+backups/
+*.sql.gz
+*.sql.zip
+*.dump
+*.bak
+*.key
+*.pem

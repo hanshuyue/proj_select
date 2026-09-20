@@ -1,8 +1,11 @@
-# 生产环境只通过环境变量提供连接信息，避免将服务器账号、密码写入代码仓库。
+# Production is selected explicitly by the service command line.
 server:
-  port: ${SERVER_PORT:8080}
-
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  port: ${SERVER_PORT:18082}
 spring:
+  sql:
+    init:
+      mode: never
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
@@ -10,16 +13,19 @@ spring:
     password: ${DB_PASSWORD}
   data:
     redis:
-      host: ${REDIS_HOST:127.0.0.1}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
-
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
 scaffold:
+  migrations:
+    enabled: false
   jwt:
     secret: ${JWT_SECRET}
+  documents:
+    storage-path: ${DOCUMENT_STORAGE_PATH:/home/glory/workmobile/selectproject/data/documents}
   selection:
-    storage-path: ${SELECTION_STORAGE_PATH:/home/glory/gems-platform/data/selection}
-    bootstrap-template-path: ${SELECTION_BOOTSTRAP_TEMPLATE_PATH:/home/glory/gems-platform/data/selection/templates/standard.pptx}
+    storage-path: ${SELECTION_STORAGE_PATH:/home/glory/workmobile/selectproject/data/selection}
+    bootstrap-template-path: ${SELECTION_BOOTSTRAP_TEMPLATE_PATH:/home/glory/workmobile/selectproject/data/selection/templates/standard.pptx}
   initiation:
-    storage-path: ${INITIATION_STORAGE_PATH:/home/glory/gems-platform/data/initiation}
-    bootstrap-template-path: ${INITIATION_BOOTSTRAP_TEMPLATE_PATH:/home/glory/gems-platform/data/initiation/templates/standard.pptx}
+    storage-path: ${INITIATION_STORAGE_PATH:/home/glory/workmobile/selectproject/data/initiation}
+    bootstrap-template-path: ${INITIATION_BOOTSTRAP_TEMPLATE_PATH:/home/glory/workmobile/selectproject/data/initiation/templates/standard.pptx}

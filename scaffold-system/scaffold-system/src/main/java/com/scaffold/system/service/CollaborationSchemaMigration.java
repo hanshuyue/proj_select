@@ -7,12 +7,15 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /** 自动修复外部注册与文档中心依赖的数据库结构和德州组织数据。 */
-@Component @Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@ConditionalOnProperty(name = "scaffold.migrations.enabled", havingValue = "true", matchIfMissing = true)
 public class CollaborationSchemaMigration implements ApplicationRunner {
  private static final Logger log=LoggerFactory.getLogger(CollaborationSchemaMigration.class); private final JdbcTemplate jdbc;
  public CollaborationSchemaMigration(JdbcTemplate jdbc){this.jdbc=jdbc;}

@@ -195,7 +195,8 @@ function normalizeBaseUrl(value: string) {
 }
 
 function defaultBaseUrl() {
-  return ((import.meta as ImportMeta & { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL) || '/api'
+  const env = (import.meta as ImportMeta & { env?: { PROD?: boolean; VITE_API_BASE_URL?: string } }).env
+  return env?.PROD ? '/api' : (env?.VITE_API_BASE_URL || '/api')
 }
 
 function buildUrl(baseUrl: string, path: string, query?: QueryParams) {

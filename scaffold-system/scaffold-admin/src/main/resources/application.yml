@@ -6,7 +6,7 @@ spring:
       max-file-size: -1
       max-request-size: -1
   profiles:
-    active: dev
+    default: dev
 
 server:
   port: 8080
@@ -19,7 +19,6 @@ scaffold:
     storage-path: ${SELECTION_STORAGE_PATH:./data/selection}
     max-template-size: 20971520
   jwt:
-    secret: "scaffold-system-jwt-secret-2026-minimum-256-bit-key"
     expires-seconds: 7200
 
 mybatis-plus:
