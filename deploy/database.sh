@@ -28,7 +28,7 @@ else
     backup_root=/home/glory/workmobile/selectproject/backups/database
     install -d -o glory -g glory -m 0700 "$backup_root"
     backup_file="$backup_root/${database}-$(date +%Y%m%d-%H%M%S).sql"
-    mysqldump --defaults-extra-file="$option_file" --single-transaction --routines --triggers \
+    mysqldump --defaults-extra-file="$option_file" --no-tablespaces --single-transaction --routines --triggers \
         "$database" > "$backup_file"
     chmod 0600 "$backup_file"
     chown glory:glory "$backup_file"

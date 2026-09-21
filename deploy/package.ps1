@@ -28,7 +28,7 @@ try {
         Run 'npm.cmd' @('run', 'build')
     } finally { Pop-Location }
     $mavenArgs = @('-B', '-pl', 'scaffold-admin', '-am', 'clean', 'package',
-        '-Dtest=PageQueryTest,PageResultTest,RTest,*PptGenerationTest,InitiationPptRowInsertionTest,InitiationTemplateValidatorTest,ProductionMigrationIsolationTest,DashboardPrivacyTest,CollaborationRoleSecurityTest,ProjectAccessSecurityTest',
+        '-Dtest=PageQueryTest,PageResultTest,RTest,*PptGenerationTest,InitiationPptRowInsertionTest,InitiationTemplateValidatorTest,ProductionMigrationIsolationTest,DashboardPrivacyTest,CollaborationRoleSecurityTest,RegisterRequestValidationTest,ProjectAccessSecurityTest',
         '-Dsurefire.failIfNoSpecifiedTests=false',
         ('-Ddict.template.path=' + (Join-Path $root 'deploy/templates/initiation/standard.pptx')),
         ('-Dselection.template.path=' + (Join-Path $root 'deploy/templates/selection/standard.pptx')))
