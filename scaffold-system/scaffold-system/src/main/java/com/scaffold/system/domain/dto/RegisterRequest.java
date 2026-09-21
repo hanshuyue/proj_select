@@ -6,10 +6,10 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class RegisterRequest {
-    @NotBlank(message = "请输入真实姓名") @Size(max = 64) private String realName;
+    @NotBlank(message = "请输入真实姓名") @Size(max = 64, message = "真实姓名不能超过 64 个字符") private String realName;
     @NotBlank(message = "请输入手机号") @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确") private String phone;
-    @NotNull(message = "请选择所属部门") private Long deptId;
-    @NotBlank(message = "请输入密码") @Size(min = 8, max = 64, message = "密码长度应为 8-64 位") private String password;
+    @NotNull(message = "请选择所属市县") private Long deptId;
+    @NotBlank(message = "请输入密码") @Size(min = 6, max = 64, message = "密码长度应为 6-64 位，支持纯数字") private String password;
     @NotBlank(message = "请输入图形验证码") private String captcha;
     @NotBlank(message = "验证码标识不能为空") private String captchaUuid;
     public String getRealName(){return realName;} public void setRealName(String v){realName=v;}
