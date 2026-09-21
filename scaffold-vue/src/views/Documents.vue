@@ -5,12 +5,16 @@ import { collaborationApi, type UserDocument, ApiError } from '@/api'
 import { currentUser } from '@/composables/auth'
 import { pushToast } from '@/composables/toast'
 import { downloadBlob } from '@/utils/download'
+import { canResubmitDocument } from '@/utils/documentAccess'
 
 const rows = ref<UserDocument[]>([]), loading = ref(false), reviewing = ref(false), review = ref<UserDocument | null>(null), history = ref<UserDocument | null>(null)
 const resubmitInput = ref<HTMLInputElement>(), resubmitRow = ref<UserDocument | null>(null), resubmitting = ref(false)
 const filters = reactive({ keyword: '', type: '', status: '' })
 const feedback = reactive({ status: 'APPROVED' as 'APPROVED' | 'REVISION_REQUIRED', feedback: '' })
-const admin = computed(() => currentUser.value?.roles?.some(role => ['super_admin', 'biz_admin'].includes(role)) ?? false)
+const admin = computed(() => currentUser.value?.roles?.some(role => ['super_admin', 'biz_admin', 'sys_admin'].includes(role)) ?? false)
+function canResubmit(row: UserDocument) {
+  return canResubmitDocument(currentUser.value?.userId ?? currentUser.value?.id, row)
+}
 const statusLabels: Record<string, string> = { SUBMITTED: '待审核', APPROVED: '已通过', REVISION_REQUIRED: '退回修改' }
 const typeLabels: Record<string, string> = { SELECTION: '甄选结果', INITIATION: '项目立项', OTHER: '其他PPT' }
 const pendingCount = computed(() => rows.value.filter(row => row.status === 'SUBMITTED').length)
@@ -36,7 +40,7 @@ async function saveFeedback() {
   catch (error) { pushToast(error instanceof ApiError ? error.message : '审核提交失败', 'danger'); await load() }
   finally { reviewing.value = false }
 }
-function chooseResubmit(row: UserDocument) { resubmitRow.value = row; resubmitInput.value?.click() }
+function chooseResubmit(row: UserDocument) { if (!canResubmit(row)) return; resubmitRow.value = row; resubmitInput.value?.click() }
 async function resubmit(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0], row = resubmitRow.value
@@ -61,7 +65,7 @@ onMounted(load)
 <template>
   <div class="page">
     <input ref="resubmitInput" type="file" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" hidden @change="resubmit" />
-    <div class="page-head"><div><h1>{{ admin ? 'PPT审核中心' : '我的PPT提交' }}</h1><p>{{ admin ? '查看全平台员工提交的成品PPT，下载核验后完成审批。' : '在甄选结果或项目立项中制作并上传PPT，在这里查看审核进度和意见。' }}</p></div><el-button plain @click="load">刷新</el-button></div>
+    <div class="page-head"><div><h1>{{ admin ? 'PPT审核中心' : '我的PPT提交' }}</h1><p>{{ admin ? '查看员工提交的成品PPT并完成审批，也可继续制作和提交自己的PPT。' : '在甄选结果或项目立项中制作并上传PPT，在这里查看审核进度和意见。' }}</p></div><el-button plain @click="load">刷新</el-button></div>
     <div class="stat-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px"><el-card shadow="never"><div class="stat-label">待审核</div><div class="stat-value">{{ pendingCount }}</div></el-card><el-card shadow="never"><div class="stat-label">已通过</div><div class="stat-value">{{ approvedCount }}</div></el-card><el-card shadow="never"><div class="stat-label">退回修改</div><div class="stat-value">{{ returnedCount }}</div></el-card></div>
     <el-card shadow="never">
       <div class="panel-head" style="gap:12px;flex-wrap:wrap"><el-input v-model="filters.keyword" clearable placeholder="搜索项目、文件、上传人或地区" style="width:280px"/><el-select v-model="filters.type" style="width:140px"><el-option label="全部类型" value=""/><el-option label="甄选结果" value="SELECTION"/><el-option label="项目立项" value="INITIATION"/></el-select><el-select v-model="filters.status" style="width:140px"><el-option label="全部状态" value=""/><el-option label="待审核" value="SUBMITTED"/><el-option label="已通过" value="APPROVED"/><el-option label="退回修改" value="REVISION_REQUIRED"/></el-select><span style="margin-left:auto;color:var(--ink-muted-48);font-size:13px">共 {{ visibleRows.length }} 条</span></div>
@@ -74,7 +78,7 @@ onMounted(load)
         <el-table-column v-if="admin" prop="submitterName" label="上传人" width="110"/><el-table-column v-if="admin" prop="deptName" label="所属地区" width="130"/>
         <el-table-column label="状态" width="100"><template #default="s"><el-tag :type="s.row.status === 'APPROVED' ? 'success' : s.row.status === 'REVISION_REQUIRED' ? 'danger' : 'warning'">{{ statusLabels[s.row.status] || s.row.status }}</el-tag></template></el-table-column>
         <el-table-column prop="feedback" label="审核意见" min-width="170"><template #default="s">{{ s.row.feedback || '—' }}</template></el-table-column><el-table-column prop="reviewerName" label="审批人" width="110"><template #default="s">{{ s.row.reviewerName || '—' }}</template></el-table-column><el-table-column prop="submitTime" label="提交时间" width="170"/>
-        <el-table-column label="操作" width="260" fixed="right"><template #default="s"><el-button link type="primary" @click="history = s.row">历次记录</el-button><el-button link type="primary" @click="download(s.row)">下载</el-button><el-button v-if="admin && s.row.status === 'SUBMITTED'" link type="primary" @click="openReview(s.row)">审核</el-button><span v-else-if="admin" style="color:var(--ink-muted-48);font-size:12px">已处理</span><el-button v-if="!admin && s.row.status !== 'SUBMITTED' && s.row.businessType !== 'OTHER'" link type="warning" :loading="resubmitting && resubmitRow?.id === s.row.id" @click="chooseResubmit(s.row)">提交新一轮</el-button></template></el-table-column>
+        <el-table-column label="操作" width="260" fixed="right"><template #default="s"><el-button link type="primary" @click="history = s.row">历次记录</el-button><el-button link type="primary" @click="download(s.row)">下载</el-button><el-button v-if="admin && s.row.status === 'SUBMITTED'" link type="primary" @click="openReview(s.row)">审核</el-button><span v-else-if="admin" style="color:var(--ink-muted-48);font-size:12px">已处理</span><el-button v-if="canResubmit(s.row)" link type="warning" :loading="resubmitting && resubmitRow?.id === s.row.id" @click="chooseResubmit(s.row)">提交新一轮</el-button></template></el-table-column>
       </el-table>
       <el-empty v-if="!loading && visibleRows.length === 0" :description="admin && filters.status === 'SUBMITTED' ? '当前没有待审核PPT' : '暂无PPT提交记录'"/>
     </el-card>
@@ -82,7 +86,7 @@ onMounted(load)
     <el-dialog :model-value="!!history" :title="`${history?.projectName || history?.title || ''} · 提交与审核记录`" width="720px" @close="history = null">
       <el-timeline>
         <el-timeline-item v-for="item in historyRows" :key="item.id" :timestamp="item.submitTime" placement="top" :type="item.status === 'APPROVED' ? 'success' : item.status === 'REVISION_REQUIRED' ? 'danger' : 'warning'">
-          <el-card shadow="never"><div style="display:flex;justify-content:space-between;gap:12px"><b>第 {{ item.revisionNo || 1 }} 轮</b><el-tag :type="item.status === 'APPROVED' ? 'success' : item.status === 'REVISION_REQUIRED' ? 'danger' : 'warning'">{{ statusLabels[item.status] || item.status }}</el-tag></div><p><b>提交文件：</b>{{ item.originalName }}</p><p><b>本轮变化：</b>{{ item.description || (item.revisionNo > 1 ? '未填写' : '首次提交') }}</p><p v-if="item.feedback"><b>审核意见：</b>{{ item.feedback }}</p><p v-if="item.reviewerName" style="color:var(--ink-muted-48)">审核员：{{ item.reviewerName }}<span v-if="item.reviewTime"> · {{ item.reviewTime }}</span></p><el-button link type="primary" @click="download(item)">下载本轮PPT</el-button><el-button v-if="!admin && item.status !== 'SUBMITTED' && item.businessType !== 'OTHER'" link type="warning" @click="chooseResubmit(item)">按此意见提交新一轮</el-button></el-card>
+          <el-card shadow="never"><div style="display:flex;justify-content:space-between;gap:12px"><b>第 {{ item.revisionNo || 1 }} 轮</b><el-tag :type="item.status === 'APPROVED' ? 'success' : item.status === 'REVISION_REQUIRED' ? 'danger' : 'warning'">{{ statusLabels[item.status] || item.status }}</el-tag></div><p><b>提交文件：</b>{{ item.originalName }}</p><p><b>本轮变化：</b>{{ item.description || (item.revisionNo > 1 ? '未填写' : '首次提交') }}</p><p v-if="item.feedback"><b>审核意见：</b>{{ item.feedback }}</p><p v-if="item.reviewerName" style="color:var(--ink-muted-48)">审核员：{{ item.reviewerName }}<span v-if="item.reviewTime"> · {{ item.reviewTime }}</span></p><el-button link type="primary" @click="download(item)">下载本轮PPT</el-button><el-button v-if="canResubmit(item)" link type="warning" @click="chooseResubmit(item)">按此意见提交新一轮</el-button></el-card>
         </el-timeline-item>
       </el-timeline>
     </el-dialog>

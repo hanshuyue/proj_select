@@ -23,7 +23,7 @@ onMounted(async () => {
     // 面向业务人员的入口保留甄选方案、甄选结果、项目立项，登录后优先进入甄选结果。
     if (route.path === '/' && authed.value) {
       const primary = dynamicRoutes.value.find(item => item.name === 'selection' || item.name === 'initiation')
-      if (primary?.name) router.replace({ name: primary.name as string })
+      if (primary?.path) router.replace({ path: `/${String(primary.path).replace(/^\//, '')}` })
     }
   }
 })
@@ -37,7 +37,7 @@ const inkColor = computed(() => light.value ? 'var(--ink)' : 'var(--side-ink)')
 const muted = computed(() => light.value ? 'var(--ink-muted-48)' : 'var(--side-ink-muted)')
 const hairline = computed(() => light.value ? 'var(--hairline)' : 'var(--side-hairline)')
 const displayName = computed(() => currentUser.value?.nickname || currentUser.value?.username || '当前用户')
-const roleText = computed(() => currentUser.value?.roles?.includes('super_admin') ? '超级管理员' : currentUser.value?.roles?.[0] || '登录用户')
+const roleText = computed(() => currentUser.value?.roles?.includes('super_admin') ? '超级管理员' : currentUser.value?.roles?.some(role => ['biz_admin', 'sys_admin'].includes(role)) ? '采购专员（管理员）' : '普通员工')
 
 interface NavLeaf { key: string; label: string; icon: string; route: string; badge?: number }
 interface NavNode { group: string; icon?: string; items?: NavLeaf[] }
@@ -49,7 +49,7 @@ function isBusinessRoute(route: string, label = '') {
   if (isAdministrator.value) return true
   const path = String(route || '').replace(/^\//, '')
   if (String(label).includes('甄选方案')) return true
-  return path === 'selection' || path.startsWith('selection/')
+  return path === 'documents' || path === 'selection' || path.startsWith('selection/')
     || path === 'selection-plan' || path.startsWith('selection-plan/')
     || path === 'selectionPlan' || path.startsWith('selectionPlan/')
     || path === 'selection_plan' || path.startsWith('selection_plan/')
@@ -166,7 +166,7 @@ watch(() => route.fullPath, syncOpenGroups)
               :title="collapsed ? it.label : ''"
               @click="onNav(it as NavLeaf)"
             >
-              <Icon name="it.icon" :size="19" :style="{ color: iconColor(it as NavLeaf) }" />
+              <Icon :name="it.icon" :size="19" :style="{ color: iconColor(it as NavLeaf) }" />
               <span v-if="!collapsed" class="nav-label">{{ it.label }}</span>
               <span v-if="!collapsed && it.badge" class="nav-badge">{{ it.badge }}</span>
             </button>
@@ -181,7 +181,7 @@ watch(() => route.fullPath, syncOpenGroups)
             :title="collapsed ? node.group : ''"
             @click="onNav({ key: node.group, label: node.group, icon: node.icon || 'dashboard', route: (node as any).route || '' })"
           >
-            <Icon name="node.icon!" :size="19" :style="{ color: iconColor(node as any) }" />
+            <Icon :name="node.icon!" :size="19" :style="{ color: iconColor(node as any) }" />
             <span v-if="!collapsed" class="nav-label">{{ node.group }}</span>
           </button>
         </div>

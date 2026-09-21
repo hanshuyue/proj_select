@@ -1,6 +1,10 @@
 package com.scaffold.system.service;
 
 import com.scaffold.system.mapper.DashboardMapper;
+import com.scaffold.framework.security.PermissionResolver;
+import com.scaffold.common.exception.BusinessException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,12 +17,20 @@ import java.util.Map;
 public class DashboardService {
 
     private final DashboardMapper mapper;
+    private final PermissionResolver permissions;
 
-    public DashboardService(DashboardMapper mapper) {
+    public DashboardService(DashboardMapper mapper, PermissionResolver permissions) {
         this.mapper = mapper;
+        this.permissions = permissions;
     }
 
     public Map<String, Object> summary(String range) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            throw new BusinessException(401, "请先登录");
+        }
+        String username = authentication.getName();
         int hours = switch (range) {
             case "7d" -> 168;
             case "30d" -> 720;
@@ -27,8 +39,8 @@ public class DashboardService {
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("stats", stats());
         data.put("trend", trend(hours));
-        data.put("todos", mapper.selectTodos());
-        data.put("activities", mapper.selectActivities());
+        data.put("todos", mapper.selectTodos(permissions.hasPermission(username, "workflow:todo:list") ? null : username));
+        data.put("activities", mapper.selectActivities(permissions.hasPermission(username, "monitor:loginlog:list") ? null : username));
         data.put("roleDist", mapper.selectRoleDistribution());
 
         long totalCalls = mapper.countApiCallsInHours(hours);

@@ -3,14 +3,14 @@ spring:
     banner-mode: console
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/scaffold_system?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
+    url: ${DEV_DB_URL:jdbc:mysql://localhost:3306/scaffold_system?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    username: ${DEV_DB_USERNAME:root}
     password: ${DEV_DB_PASSWORD:}
   data:
     redis:
-      host: localhost
-      port: 6379
-     # password: password
+      host: ${DEV_REDIS_HOST:localhost}
+      port: ${DEV_REDIS_PORT:6379}
+      password: ${DEV_REDIS_PASSWORD:}
 
 logging:
   level:
@@ -27,10 +27,12 @@ flowable:
   rest-api-enabled: false
 
 scaffold:
+  migrations:
+    enabled: true
   jwt:
     secret: ${DEV_JWT_SECRET:development-only-jwt-key-not-for-production-2026}
   initiation:
-    storage-path: ./data/initiation
+    storage-path: ${INITIATION_STORAGE_PATH:./data/initiation}
     # The standard deck (including its embedded financial workbook) ships with the application.
     # Fillers never need to upload the PPTX or the yield-calculation Excel separately.
     bootstrap-template-path: ${INITIATION_BOOTSTRAP_TEMPLATE_PATH:../../deploy/templates/initiation/standard.pptx}

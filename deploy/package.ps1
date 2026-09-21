@@ -28,7 +28,7 @@ try {
         Run 'npm.cmd' @('run', 'build')
     } finally { Pop-Location }
     $mavenArgs = @('-B', '-pl', 'scaffold-admin', '-am', 'clean', 'package',
-        '-Dtest=PageQueryTest,PageResultTest,RTest,*PptGenerationTest,InitiationPptRowInsertionTest,InitiationTemplateValidatorTest,ProductionMigrationIsolationTest',
+        '-Dtest=PageQueryTest,PageResultTest,RTest,*PptGenerationTest,InitiationPptRowInsertionTest,InitiationTemplateValidatorTest,ProductionMigrationIsolationTest,DashboardPrivacyTest,CollaborationRoleSecurityTest,ProjectAccessSecurityTest',
         '-Dsurefire.failIfNoSpecifiedTests=false',
         ('-Ddict.template.path=' + (Join-Path $root 'deploy/templates/initiation/standard.pptx')),
         ('-Dselection.template.path=' + (Join-Path $root 'deploy/templates/selection/standard.pptx')))
@@ -47,6 +47,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'README.md') -Destination (Join-Path $stage 'deploy/README.md')
     $commit = (& git -C $root rev-parse HEAD).Trim()
     [IO.File]::WriteAllText((Join-Path $stage 'deploy/build-info.txt'), "Source base commit: $commit`nIncludes current working tree changes.`nBuilt UTC: $([DateTime]::UtcNow.ToString('o'))`n", [Text.UTF8Encoding]::new($false))
+    Run $Python @((Join-Path $PSScriptRoot 'source-manifest.py'), $root, (Join-Path $stage 'deploy/source-manifest.json'))
     Run $Python @((Join-Path $PSScriptRoot 'audit-package.py'), $stage)
     $temporaryArchive = Join-Path $outputs ('selectproject-' + [Guid]::NewGuid().ToString('N') + '.tar.gz')
     Run 'tar' @('-czf', $temporaryArchive, '-C', $stage, 'app', 'web', 'templates', 'deploy')

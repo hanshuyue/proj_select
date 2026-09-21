@@ -20,8 +20,8 @@ import './styles/pages.css'
 // 初始化外观（写入强调色 CSS 变量等）
 import './composables/appearance'
 
-// 权限初始化：默认开放全部权限；后续对接登录接口后替换
-setPermissions(['*'])
+// 在服务端身份与权限加载完成前不开放受限操作
+setPermissions([])
 setHttpErrorToast(pushToast)
 
 const app = createApp(App)

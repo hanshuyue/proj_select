@@ -157,6 +157,14 @@ export async function loadRoutes() {
     const freshUser = await authApi.me()
     currentUser.value = freshUser
     authSession.updateUser(freshUser)
+    // 初始密码会话仅允许查询身份、修改密码和退出，不能请求菜单接口。
+    if (freshUser.mustChangePassword) {
+      dynamicNav.value = []
+      dynamicRoutes.value = []
+      setPermissions([])
+      return
+    }
+    setPermissions(freshUser.roles?.includes('super_admin') ? ['*'] : freshUser.permissions || [])
     const data = await authApi.routes()
     const tree = data.routes
 
@@ -167,7 +175,7 @@ export async function loadRoutes() {
       ? new Set<string>(['*'])
       : currentUser.value?.permissions
         ? new Set(currentUser.value.permissions)
-        : new Set<string>(['*'])
+        : new Set<string>([])
     const filtered = filterByPermission(tree, perms)
 
     dynamicNav.value = menusToNav(filtered)
@@ -185,7 +193,7 @@ export function resetAuthState() {
   currentUser.value = null
   dynamicNav.value = []
   dynamicRoutes.value = []
-  setPermissions(['*'])
+  setPermissions([])
   authSession.clear()
 }
 
@@ -198,7 +206,7 @@ export async function login(credentials: { username: string; password: string; c
   currentUser.value = user
 
   // 同步权限到权限指令
-  if (user.permissions) setPermissions(user.permissions)
+  setPermissions(user.mustChangePassword ? [] : user.roles?.includes('super_admin') ? ['*'] : user.permissions || [])
 
   if (!user.mustChangePassword) await loadRoutes()
   return user

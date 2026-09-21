@@ -18,7 +18,7 @@ public class SystemPermissionResolver implements PermissionResolver {
     @Override
     public boolean hasPermission(String username, String permission) {
         var user = authMapper.selectUserByUsername(username);
-        if (user == null) {
+        if (user == null || !Integer.valueOf(1).equals(user.getStatus())) {
             return false;
         }
         if (authMapper.selectRoleCodes(user.getId()).contains(SUPER_ADMIN)) {

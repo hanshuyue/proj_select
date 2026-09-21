@@ -35,6 +35,7 @@ public interface AuthMapper {
     @Select("""
             SELECT DISTINCT m.permission
             FROM sys_user_role ur
+            JOIN sys_role r ON r.id = ur.role_id AND r.status = 1 AND r.deleted = 0
             JOIN sys_role_menu rm ON rm.role_id = ur.role_id
             JOIN sys_menu m ON m.id = rm.menu_id
             WHERE ur.user_id = #{userId}
@@ -49,6 +50,7 @@ public interface AuthMapper {
             SELECT DISTINCT m.id, m.parent_id, m.menu_name, m.menu_type, m.icon, m.path,
                    m.component, m.permission, m.sort
             FROM sys_user_role ur
+            JOIN sys_role r ON r.id = ur.role_id AND r.status = 1 AND r.deleted = 0
             JOIN sys_role_menu rm ON rm.role_id = ur.role_id
             JOIN sys_menu m ON m.id = rm.menu_id
             WHERE ur.user_id = #{userId}

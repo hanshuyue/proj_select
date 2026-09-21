@@ -1,6 +1,7 @@
 package com.scaffold.system.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -105,10 +106,11 @@ public interface DashboardMapper {
             LEFT JOIN wf_model_meta m
               ON b.process_definition_id LIKE CONCAT(m.model_key, ':%')
             WHERE b.business_status IN ('TODO', 'PENDING', 'APPROVING')
+              AND (#{username} IS NULL OR b.starter = #{username})
             ORDER BY b.create_time DESC, b.id DESC
             LIMIT 5
             """)
-    List<Map<String, Object>> selectTodos();
+    List<Map<String, Object>> selectTodos(@Param("username") String username);
 
     @Select("""
             SELECT username AS who,
@@ -117,8 +119,9 @@ public interface DashboardMapper {
                    DATE_FORMAT(login_time, '%Y-%m-%d %H:%i') AS time,
                    CASE status WHEN 1 THEN 'ok' ELSE 'danger' END AS tint
             FROM sys_login_log
+            WHERE (#{username} IS NULL OR username = #{username})
             ORDER BY login_time DESC, id DESC
             LIMIT 8
             """)
-    List<Map<String, Object>> selectActivities();
+    List<Map<String, Object>> selectActivities(@Param("username") String username);
 }

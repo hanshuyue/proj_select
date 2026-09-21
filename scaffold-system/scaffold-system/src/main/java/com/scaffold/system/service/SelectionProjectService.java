@@ -27,26 +27,30 @@ import java.util.Map;
 @Service
 public class SelectionProjectService {
     private final SelectionMapper mapper;
+    private final ProjectAccessService access;
     private final Path reportDirectory;
     private static final java.util.Set<String> DOCUMENT_EXTENSIONS = java.util.Set.of(
             ".doc", ".docx", ".pdf", ".xls", ".xlsx", ".ppt", ".pptx",
             ".txt", ".rtf", ".odt", ".ods", ".odp", ".csv", ".wps", ".et", ".dps"
     );
 
-    public SelectionProjectService(SelectionMapper mapper,
+    public SelectionProjectService(SelectionMapper mapper, ProjectAccessService access,
                                    @Value("${scaffold.selection.storage-path:./data/selection}") String storagePath) {
         this.mapper = mapper;
+        this.access = access;
         this.reportDirectory = Path.of(storagePath).toAbsolutePath().normalize().resolve("review-reports");
     }
 
     public PageResult<Map<String, Object>> list(PageQuery query, String keyword) {
         int pageNum = query.normalizedPageNum();
         int pageSize = query.normalizedPageSize();
-        return PageResult.of(mapper.selectProjects(keyword, (pageNum - 1) * pageSize, pageSize),
-                mapper.countProjects(keyword), pageNum, pageSize);
+        String owner = access.ownerFilter();
+        return PageResult.of(mapper.selectProjects(keyword, (pageNum - 1) * pageSize, pageSize, owner),
+                mapper.countProjects(keyword, owner), pageNum, pageSize);
     }
 
     public Map<String, Object> detail(Long id) {
+        access.selection(id);
         Map<String, Object> row = mapper.selectProject(id);
         if (row == null) throw new BusinessException(404, "甄选结果不存在");
         row.put("bidders", mapper.selectBidders(id));
@@ -65,6 +69,7 @@ public class SelectionProjectService {
 
     @Transactional
     public void update(Long id, SelectionProjectRequest request) {
+        access.selection(id);
         SelectionProjectRequest normalized = normalize(request);
         if (mapper.updateProject(id, normalized, currentUsername()) == 0) {
             throw new BusinessException(404, "甄选结果不存在");
@@ -75,6 +80,7 @@ public class SelectionProjectService {
 
     @Transactional
     public void delete(Long id) {
+        access.selection(id);
         if (mapper.deleteProject(id, currentUsername()) == 0) {
             throw new BusinessException(404, "甄选结果不存在");
         }
@@ -82,6 +88,7 @@ public class SelectionProjectService {
     }
 
     public Map<String, String> uploadReviewReport(Long id, MultipartFile file) {
+        access.selection(id);
         if (mapper.selectProject(id) == null) throw new BusinessException(404, "甄选结果不存在");
         if (file == null || file.isEmpty()) throw new BusinessException("请选择评审报告");
         String original = file.getOriginalFilename() == null ? "评审报告" : file.getOriginalFilename();
@@ -106,6 +113,7 @@ public class SelectionProjectService {
     }
 
     public Map.Entry<String, byte[]> downloadReviewReport(Long id) {
+        access.selection(id);
         Map<String, Object> row = mapper.selectReviewReport(id);
         if (row == null || row.get("reviewReportPath") == null) throw new BusinessException(404, "未上传评审报告");
         Path path = Path.of(String.valueOf(row.get("reviewReportPath"))).toAbsolutePath().normalize();

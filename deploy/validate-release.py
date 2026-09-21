@@ -31,7 +31,7 @@ def release(root):
                 raise ValueError('Release integrity failure: ' + name)
     if actual != set(expected):
         raise ValueError('Missing release files')
-    for required in ('app/gems-platform-server.jar','web/index.html','templates/initiation/standard.pptx','templates/selection/standard.pptx','deploy/minimum-java.txt'):
+    for required in ('app/gems-platform-server.jar','web/index.html','templates/initiation/standard.pptx','templates/selection/standard.pptx','deploy/minimum-java.txt','deploy/build-info.txt','deploy/source-manifest.json'):
         if required not in actual:
             raise ValueError('Missing required asset: ' + required)
 

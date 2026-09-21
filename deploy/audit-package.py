@@ -41,7 +41,7 @@ with zipfile.ZipFile(jar) as app:
     if any('application-local' in n for n in app.namelist()):
         raise RuntimeError('Local configuration leaked into JAR')
 minimum = max(item['java'] for item in requirements)
-(root / 'deploy/minimum-java.txt').write_text(str(minimum) + '\n', encoding='utf-8')
+(root / 'deploy/minimum-java.txt').write_text(str(minimum) + '\n', encoding='utf-8', newline='\n')
 (root / 'deploy/java-audit.json').write_text(json.dumps({'minimumJava': minimum, 'scope': 'All base classes in executable JAR and packaged dependencies; multi-release variants excluded', 'artifacts': requirements}, indent=2) + '\n', encoding='utf-8')
 lines = []
 for path in sorted(root.rglob('*')):
@@ -53,5 +53,5 @@ for path in sorted(root.rglob('*')):
     if any(s in path.parts for s in ('node_modules', 'data', '.m2-repository')) or path.suffix == '.env':
         raise RuntimeError(f'Unexpected private/runtime file: {relative}')
     lines.append(hashlib.sha256(path.read_bytes()).hexdigest() + '  ' + relative)
-(root / 'deploy/SHA256SUMS').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+(root / 'deploy/SHA256SUMS').write_text('\n'.join(lines) + '\n', encoding='utf-8', newline='\n')
 print(f'Audited {len(requirements)} archives. Minimum Java: {minimum}; {len(lines)} release files.')

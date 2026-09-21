@@ -1,6 +1,6 @@
 # SelectProject 生产部署文档
 
-文档版本：V2.0
+文档版本：V2.1（2026-09-21）
 
 部署地址：`http://120.224.187.51:3333`
 
@@ -122,7 +122,22 @@ curl -I http://127.0.0.1:3333/
 sudo nginx -t
 ```
 
-业务验收应至少覆盖登录、附件上传下载、甄选 PPT 导出、立项 PPT 导出及 SPA 子路由刷新。防火墙和云安全组只需放行 TCP 3333；18082、MySQL、Redis 不应对公网开放。
+业务验收应至少覆盖新账号注册后直接登录、普通员工甄选/立项填报与 PPT 导出、采购专员同时填报及审批、附件上传下载及 SPA 子路由刷新。切换权限后退出并重新登录以刷新权限。防火墙和云安全组只需放行 TCP 3333；18082、MySQL、Redis 不应对公网开放。
+
+### 版本与配置一致性排查
+
+开发使用 `dev`，生产使用 `prod`；数据库地址、密码和持久化目录应因环境而异，角色与功能授权规则应一致。开发数据库/Redis 可使用 `DEV_DB_URL`、`DEV_DB_USERNAME`、`DEV_DB_PASSWORD`、`DEV_REDIS_HOST`、`DEV_REDIS_PORT`、`DEV_REDIS_PASSWORD` 覆盖。生产值只写入 `/etc/selectproject/selectproject.env`，不可提交仓库。
+
+发布同时打包前端、后端和 SQL。`build-info.txt` 记录基础提交和构建时间，`source-manifest.json` 记录实际源文件摘要（含未提交改动），`SHA256SUMS` 记录构建产物摘要。安装后这三个文件保存在 `app/`，程序回滚时一同恢复。对比本地发布目录和云端 `app/source-manifest.json` 的 `sourceSha256`，再校验实际 JAR/静态文件，避免仅凭 Git 提交号判断版本：
+
+```bash
+cat /home/glory/workmobile/selectproject/app/build-info.txt
+python3 -c 'import json; print(json.load(open("/home/glory/workmobile/selectproject/app/source-manifest.json"))["sourceSha256"])'
+cd /home/glory/workmobile/selectproject
+tr -d '\r' < app/SHA256SUMS | grep -E '  (app/|web/)' | sha256sum -c -
+```
+
+如果产物一致但功能不同，检查是否已执行本次发布的数据库升级、账号角色及角色是否停用，并退出重登和刷新页面。旧版本没有上述安装元数据时，先比较 JAR 和前端文件摘要。本地审计不代表已核实云服务器运行版本。
 
 ## 6. 升级与回滚
 

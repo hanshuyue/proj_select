@@ -20,13 +20,14 @@ public interface SelectionMapper {
             <script>
             SELECT COUNT(*) FROM biz_selection_project
             WHERE deleted = 0
+              AND (#{owner} IS NULL OR create_by = #{owner})
               AND (#{keyword} IS NULL OR #{keyword} = ''
                    OR project_name LIKE CONCAT('%', #{keyword}, '%')
                    OR opportunity_no LIKE CONCAT('%', #{keyword}, '%')
                    OR selected_company LIKE CONCAT('%', #{keyword}, '%'))
             </script>
             """)
-    long countProjects(@Param("keyword") String keyword);
+    long countProjects(@Param("keyword") String keyword, @Param("owner") String owner);
 
     @Select("""
             <script>
@@ -37,6 +38,7 @@ public interface SelectionMapper {
                    status, DATE_FORMAT(update_time, '%Y-%m-%d %H:%i') AS updateTime
             FROM biz_selection_project
             WHERE deleted = 0
+              AND (#{owner} IS NULL OR create_by = #{owner})
               AND (#{keyword} IS NULL OR #{keyword} = ''
                    OR project_name LIKE CONCAT('%', #{keyword}, '%')
                    OR opportunity_no LIKE CONCAT('%', #{keyword}, '%')
@@ -47,7 +49,7 @@ public interface SelectionMapper {
             """)
     List<Map<String, Object>> selectProjects(@Param("keyword") String keyword,
                                              @Param("offset") int offset,
-                                             @Param("pageSize") int pageSize);
+                                             @Param("pageSize") int pageSize, @Param("owner") String owner);
 
     @Select("""
             SELECT id, project_name AS projectName, opportunity_no AS opportunityNo,

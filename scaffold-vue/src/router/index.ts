@@ -1,3 +1,4 @@
+import { watch } from 'vue'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { authed, currentUser, dynamicRoutes, loadRoutes, resetAuthState } from '@/composables/auth'
 import AppShell from '@/components/layout/AppShell.vue'
@@ -33,13 +34,23 @@ const router = createRouter({
 })
 
 const injectedNames = new Set<string>()
+const removeInjectedRoutes: (() => void)[] = []
+let routesLoaded = false
+
+watch(authed, (loggedIn) => {
+  if (!loggedIn) {
+    removeInjectedRoutes.splice(0).forEach(remove => remove())
+    injectedNames.clear()
+    routesLoaded = false
+  }
+}, { flush: 'sync' })
 
 function defaultProtectedRoute() {
   const primaryRoute = dynamicRoutes.value.find((route) => route.name === 'selection' || route.name === 'initiation')
-  if (primaryRoute?.name) return { name: primaryRoute.name as string, replace: true }
+  if (primaryRoute?.path) return { path: `/${String(primaryRoute.path).replace(/^\//, '')}`, replace: true }
   const firstRoute = dynamicRoutes.value[0]
-  if (firstRoute?.name) return { name: firstRoute.name as string, replace: true }
-  return { path: '/', replace: true }
+  if (firstRoute?.path) return { path: `/${String(firstRoute.path).replace(/^\//, '')}`, replace: true }
+  return { path: '/documents', replace: true }
 }
 
 function hasDynamicMatch(path: string, name?: string | symbol | null) {
@@ -50,6 +61,7 @@ function hasDynamicMatch(path: string, name?: string | symbol | null) {
 }
 
 export function injectRoutes(routes: RouteRecordRaw[]) {
+  routesLoaded = true
   for (const route of routes) {
     const name = route.name as string | undefined
     if (!name || injectedNames.has(name) || !route.component) continue
@@ -60,12 +72,12 @@ export function injectRoutes(routes: RouteRecordRaw[]) {
       continue
     }
     injectedNames.add(name)
-    router.addRoute('root', {
+    removeInjectedRoutes.push(router.addRoute('root', {
       path: route.path,
       name,
       component: route.component as NonNullable<RouteRecordRaw['component']>,
       meta: route.meta,
-    })
+    }))
   }
 }
 
@@ -73,70 +85,55 @@ export function hasRoute(name: string) {
   return injectedNames.has(name)
 }
 
+const businessPermissions: Record<string, string> = {
+  initiation: 'initiation:project:list', initiationForm: 'initiation:project:add',
+  initiationNew: 'initiation:project:add', initiationEdit: 'initiation:project:edit',
+  initiationTemplate: 'initiation:template:list', selectionForm: 'selection:project:add',
+  selectionNew: 'selection:project:add', selectionEdit: 'selection:project:edit',
+}
+
+function canVisit(path: string, name?: string | symbol | null) {
+  const user = currentUser.value
+  if (name === 'documents') return true
+  if (name === 'registrationReview') return !!user?.roles?.includes('super_admin')
+  const permission = businessPermissions[String(name)]
+  if (permission) return !!user?.roles?.includes('super_admin') || !!user?.permissions?.some(p => p === '*' || p === permission)
+  return hasDynamicMatch(path, name)
+}
+
 router.beforeEach(async (to) => {
-  if (to.meta.public) {
-    if (authed.value && to.name === 'login') {
-      if (injectedNames.size === 0) {
-        try {
-          await loadRoutes()
-        } catch {
-          resetAuthState()
-          return true
-        }
-        injectRoutes(dynamicRoutes.value)
-      }
-
-      const redirect = typeof to.query.redirect === 'string' ? to.query.redirect : ''
-      if (redirect) {
-        const resolved = router.resolve(redirect)
-        if (hasDynamicMatch(resolved.path, resolved.name)) {
-          return { path: redirect, replace: true }
-        }
-      }
-
-      return defaultProtectedRoute()
-    }
-    return true
-  }
-
   if (!authed.value) {
-    return {
-      name: 'login',
-      query: to.fullPath && to.fullPath !== '/' ? { redirect: to.fullPath } : undefined,
-      replace: true,
-    }
+    if (to.meta.public) return true
+    return { name: 'login', query: to.fullPath !== '/' ? { redirect: to.fullPath } : undefined, replace: true }
   }
+  if (to.meta.public && to.name !== 'login') return true
 
-  if (injectedNames.size === 0) {
+  let loadedNow = false
+  if (!routesLoaded) {
     try {
       await loadRoutes()
+      injectRoutes(dynamicRoutes.value)
+      loadedNow = true
     } catch {
       resetAuthState()
-      return {
-        name: 'login',
-        query: to.fullPath && to.fullPath !== '/' ? { redirect: to.fullPath } : undefined,
-        replace: true,
-      }
+      return to.meta.public ? true : { name: 'login', replace: true }
     }
-    injectRoutes(dynamicRoutes.value)
-    if (to.path === '/') return defaultProtectedRoute()
-    if (to.name === 'selectionForm' || to.name === 'selectionNew' || to.name === 'selectionEdit'
-      || to.name === 'initiation' || to.name === 'initiationForm' || to.name === 'initiationTemplate'
-      || to.name === 'initiationNew' || to.name === 'initiationEdit'
-      || to.name === 'documents' || to.name === 'registrationReview') return true
-    if (!hasDynamicMatch(to.path, to.name)) return defaultProtectedRoute()
-    return { path: to.fullPath, replace: true }
   }
-
-  if (to.path === '/') {
-    return defaultProtectedRoute()
-  }
-
+  // Password policy must apply on the first navigation as well as later ones.
   if (currentUser.value?.mustChangePassword) {
     return to.name === 'changePasswordRequired' ? true : { name: 'changePasswordRequired', replace: true }
   }
-  if (to.name === 'changePasswordRequired') return defaultProtectedRoute()
-
+  if (to.name === 'login') {
+    const redirect = typeof to.query.redirect === 'string' ? to.query.redirect : ''
+    if (redirect.startsWith('/') && !redirect.startsWith('//')) {
+      const resolved = router.resolve(redirect)
+      if (canVisit(resolved.path, resolved.name)) return { path: redirect, replace: true }
+    }
+    return defaultProtectedRoute()
+  }
+  if (to.path === '/' || to.name === 'changePasswordRequired') return defaultProtectedRoute()
+  if (!canVisit(to.path, to.name)) return defaultProtectedRoute()
+  if (loadedNow) return { path: to.fullPath, replace: true }
   return true
 })
 

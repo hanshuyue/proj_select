@@ -10,6 +10,7 @@ ppt_build_*/
 **/startup*.log
 
 # Frontend dependencies and build output
+.npm-cache/
 **/node_modules/
 **/dist/
 

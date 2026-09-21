@@ -9,6 +9,7 @@ for command in mysql mysqldump python3 mktemp; do
     command -v "$command" >/dev/null || fail "Missing prerequisite: $command"
 done
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+python3 "$script_dir/validate-release.py" release "$(dirname -- "$script_dir")"
 environment_file=/etc/selectproject/selectproject.env
 [[ -f "$environment_file" ]] || fail "Missing $environment_file"
 python3 "$script_dir/validate-release.py" env "$environment_file"

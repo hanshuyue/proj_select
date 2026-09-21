@@ -19,19 +19,21 @@ import java.util.*;
 
 @Service
 public class InitiationProjectService {
-    private final InitiationMapper mapper;
+    private final InitiationMapper mapper; private final ProjectAccessService access;
     private final ObjectMapper objectMapper; private final InitiationAttachmentService attachments;
 
-    public InitiationProjectService(InitiationMapper mapper,ObjectMapper objectMapper,InitiationAttachmentService attachments) {
-        this.mapper=mapper; this.objectMapper=objectMapper;this.attachments=attachments;
+    public InitiationProjectService(InitiationMapper mapper,ObjectMapper objectMapper,InitiationAttachmentService attachments,ProjectAccessService access) {
+        this.mapper=mapper; this.access=access; this.objectMapper=objectMapper;this.attachments=attachments;
     }
 
     public PageResult<Map<String,Object>> list(PageQuery q,String keyword) {
         int p=q.normalizedPageNum(),s=q.normalizedPageSize();
-        return PageResult.of(mapper.list(keyword,(p-1)*s,s),mapper.count(keyword),p,s);
+        String owner=access.ownerFilter();
+        return PageResult.of(mapper.list(keyword,(p-1)*s,s,owner),mapper.count(keyword,owner),p,s);
     }
 
     public Map<String,Object> detail(Long id) {
+        access.initiation(id);
         Map<String,Object> row=mapper.get(id);
         if(row==null) throw new BusinessException(404,"立项项目不存在");
         try {
@@ -60,6 +62,7 @@ public class InitiationProjectService {
 
     @Transactional
     public void update(Long id,InitiationProjectRequest input) {
+        access.initiation(id);
         InitiationProjectRequest r=normalize(input);
         if(mapper.update(id,r,json(r.sections()),operator())==0) throw new BusinessException(404,"立项项目不存在");
         mapper.deleteFinanceItems(id); saveItems(id,r);
@@ -67,6 +70,7 @@ public class InitiationProjectService {
 
     @Transactional
     public void delete(Long id) {
+        access.initiation(id);
         if(mapper.delete(id,operator())==0) throw new BusinessException(404,"立项项目不存在");
         mapper.deleteFinanceItems(id);
     }

@@ -42,7 +42,7 @@ java=$(realpath -e -- "$java")
 [[ "$java" =~ ^/[a-zA-Z0-9_./+-]+$ ]] || fail 'Java executable path must not contain spaces or shell syntax.'
 version=$(runuser -u glory -- "$java" -version 2>&1)
 major=$(sed -nE 's/.*version "([0-9]+).*/\1/p' <<<"$version" | head -n1)
-minimum=$(cat "$release/deploy/minimum-java.txt")
+minimum=$(tr -d '\r\n' < "$release/deploy/minimum-java.txt")
 [[ "$major" =~ ^[0-9]+$ && "$minimum" =~ ^[0-9]+$ && "$major" -ge "$minimum" ]] || fail "Java $minimum or newer required; detected: ${major:-unknown}"
 nginx -t
 nginx_info=$(python3 "$release/deploy/validate-release.py" nginx)
@@ -90,6 +90,7 @@ trap rollback ERR
 changed=true
 if [[ "$was_active" == true ]]; then systemctl stop selectproject; fi
 rsync -a --delete --chown=glory:glory "$release/app/" "$root/app/"
+install -o glory -g glory -m 0640 "$release/deploy/build-info.txt" "$release/deploy/source-manifest.json" "$release/deploy/SHA256SUMS" "$root/app/"
 rsync -a --delete --chown=glory:glory "$release/web/" "$root/web/"
 for kind in selection initiation; do
     if [[ ! -e "$root/data/$kind/templates/standard.pptx" ]]; then

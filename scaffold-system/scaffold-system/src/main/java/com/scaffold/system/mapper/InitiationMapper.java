@@ -11,13 +11,13 @@ public interface InitiationMapper {
     @Select("""
         <script>
         SELECT COUNT(*) FROM biz_initiation_project
-        WHERE deleted=0 AND (#{keyword} IS NULL OR #{keyword}=''
+        WHERE deleted=0 AND (#{owner} IS NULL OR create_by=#{owner}) AND (#{keyword} IS NULL OR #{keyword}=''
           OR project_name LIKE CONCAT('%',#{keyword},'%')
           OR opportunity_no LIKE CONCAT('%',#{keyword},'%')
           OR customer_name LIKE CONCAT('%',#{keyword},'%'))
         </script>
         """)
-    long count(@Param("keyword") String keyword);
+    long count(@Param("keyword") String keyword, @Param("owner") String owner);
 
     @Select("""
         <script>
@@ -28,7 +28,7 @@ public interface InitiationMapper {
           fund_risk_level fundRiskLevel, three_line_level threeLineLevel, status,
           DATE_FORMAT(update_time,'%Y-%m-%d %H:%i') updateTime
         FROM biz_initiation_project
-        WHERE deleted=0 AND (#{keyword} IS NULL OR #{keyword}=''
+        WHERE deleted=0 AND (#{owner} IS NULL OR create_by=#{owner}) AND (#{keyword} IS NULL OR #{keyword}=''
           OR project_name LIKE CONCAT('%',#{keyword},'%')
           OR opportunity_no LIKE CONCAT('%',#{keyword},'%')
           OR customer_name LIKE CONCAT('%',#{keyword},'%'))
@@ -36,7 +36,7 @@ public interface InitiationMapper {
         </script>
         """)
     List<Map<String,Object>> list(@Param("keyword") String keyword, @Param("offset") int offset,
-                                  @Param("pageSize") int pageSize);
+                                  @Param("pageSize") int pageSize, @Param("owner") String owner);
 
     @Select("""
         SELECT id, project_name projectName, opportunity_no opportunityNo, customer_name customerName,

@@ -49,17 +49,21 @@ const rules: FormRules<typeof form> = {
 }
 
 async function refresh() {
+  form.captcha = ''
   try {
     const res = await authApi.captcha()
     code.value = res.code
     captchaUuid.value = res.uuid
   } catch {
-    code.value = Math.random().toString(36).slice(2, 6).toUpperCase()
+    code.value = ''
+    serverError.value = '验证码加载失败，请点击验证码区域重试'
     captchaUuid.value = ''
   }
 }
 
 async function submit() {
+  if (loading.value) return
+  if (!captchaUuid.value) { await refresh(); return }
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) return
 
@@ -87,7 +91,8 @@ async function submit() {
     }
 
     const firstRoute = dynamicRoutes.value[0]
-    await router.replace(firstRoute?.name ? { name: firstRoute.name as string } : { path: '/' })
+    const firstPath = firstRoute?.path ? `/${String(firstRoute.path).replace(/^\//, '')}` : '/'
+    await router.replace({ path: firstPath })
   } catch (error) {
     serverError.value = error instanceof ApiError ? error.message : '登录失败，请稍后重试'
     await refresh()
